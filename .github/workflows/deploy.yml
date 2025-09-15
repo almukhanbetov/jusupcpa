@@ -32,7 +32,7 @@ jobs:
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:latest
-           
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}   
 
   deploy:
     name: Deploy to k3s on VPS
