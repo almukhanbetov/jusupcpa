@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  IMAGE_NAME: almuko/jusupcpa  # 👈 Твой DockerHub репозиторий
+  IMAGE_NAME: almuko/jusupcpa   # 👈 твой репозиторий на DockerHub
 
 jobs:
   build-and-push:
@@ -22,8 +22,8 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}   # 👈 DockerHub логин
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}   # 👈 DockerHub пароль/токен
+          username: ${{ secrets.DOCKERHUB_USERNAME }}   # 👈 логин
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}   # 👈 пароль/токен
 
       - name: Build and Push Image to Docker Hub
         uses: docker/build-push-action@v4
@@ -31,8 +31,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.IMAGE_NAME }}:latest                # 👈 последний образ
-            ${{ env.IMAGE_NAME }}:${{ github.sha }}     # 👈 уникальный тег по SHA коммита
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}    # 👈 уникальный тег по SHA
 
   deploy:
     name: Deploy to k3s on VPS
@@ -42,17 +42,17 @@ jobs:
       - name: Checkout repo again
         uses: actions/checkout@v3
 
-      - name: Copy k3s manifests to VPS and deploy
+      - name: Copy k3s manifests to VPS and prepare dir
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.VPS_HOST }}                 # 👈 IP или домен VPS
-          username: ${{ secrets.VPS_USER }}             # 👈 Пользователь (например root)
-          key: ${{ secrets.VPS_SSH_KEY }}               # 👈 SSH приватный ключ
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             DEPLOY_DIR=~/jusupcpa
             mkdir -p $DEPLOY_DIR
-            rm -rf $DEPLOY_DIR/*                        # 👈 очищаем папку перед копированием
-            echo "Ready to copy files."
+            rm -rf $DEPLOY_DIR/*
+            echo "✅ Ready to copy files."
 
       - name: SCP k3s manifests to VPS
         uses: appleboy/scp-action@v0.1.6
@@ -60,7 +60,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "k3s/*"                               # 👈 твои манифесты
+          source: "k3s/*"
           target: "~/jusupcpa/"
 
       - name: Apply k3s manifests on VPS
@@ -71,10 +71,15 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd ~/jusupcpa/k3s
-            # 👇 подставляем тег с SHA, чтобы Kubernetes понял, что образ новый
-            sed -i 's|image:.*|image: '"${{ env.IMAGE_NAME }}:${{ github.sha }}"'|' deployment.yaml
 
+            # 👇 подменяем образ на тег с SHA
+            sed -i 's|image:.*|image: almuko/jusupcpa:'"${{ github.sha }}"'|' deployment.yaml
+
+            # Применяем все манифесты
             kubectl apply -f .
-            kubectl rollout restart deployment jusupcpa   # 👈 форсируем рестарт, чтобы точно обновился
-            kubectl rollout status deployment jusupcpa    # 👈 ждём пока поднимется
-            echo "✅ Deployment complete."
+
+            # Рестартуем деплой и ждём, пока поднимется
+            kubectl rollout restart deployment jusupcpa
+            kubectl rollout status deployment jusupcpa --timeout=60s
+
+            echo "🚀 Deployment complete."
