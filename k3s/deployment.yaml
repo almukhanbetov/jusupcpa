@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: jusupcpa-container
-          image: almuko/jusupcpa:latest # 👈 заменишь на свой dockerhub
+          image: almuko/jusupcpa:latest   # 👈 CI подменит этот тег на SHA
+          imagePullPolicy: Always         # 👈 всегда тянем новый образ, даже если тег одинаковый
           ports:
             - containerPort: 80
           resources:
@@ -24,15 +25,15 @@ spec:
               cpu: "100m"
               memory: "128Mi"
             limits:
-              cpu: "500m"
+              cpu: "250m"
               memory: "256Mi"
-          livenessProbe:
+          livenessProbe:                  # 👈 проверка живости
             httpGet:
               path: /
               port: 80
             initialDelaySeconds: 10
-            periodSeconds: 30
-          readinessProbe:
+            periodSeconds: 20
+          readinessProbe:                 # 👈 проверка готовности
             httpGet:
               path: /
               port: 80

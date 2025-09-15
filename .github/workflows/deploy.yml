@@ -1,10 +1,13 @@
 name: Deploy React App to K3s
+
 on:
   push:
     branches:
       - main
+
 env:
-  IMAGE_NAME: almuko/jusupcpa  # 👈 Укажи свой dockerhub репозиторий
+  IMAGE_NAME: almuko/jusupcpa  # 👈 Твой DockerHub репозиторий
+
 jobs:
   build-and-push:
     name: Build and Push Docker Image
@@ -19,15 +22,18 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}   # 👈 DockerHub логин
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}   # 👈 DockerHub пароль/токен
 
       - name: Build and Push Image to Docker Hub
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
-          tags: ${{ env.IMAGE_NAME }}:latest
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest                # 👈 последний образ
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}     # 👈 уникальный тег по SHA коммита
+
   deploy:
     name: Deploy to k3s on VPS
     runs-on: ubuntu-latest
@@ -39,13 +45,13 @@ jobs:
       - name: Copy k3s manifests to VPS and deploy
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          host: ${{ secrets.VPS_HOST }}                 # 👈 IP или домен VPS
+          username: ${{ secrets.VPS_USER }}             # 👈 Пользователь (например root)
+          key: ${{ secrets.VPS_SSH_KEY }}               # 👈 SSH приватный ключ
           script: |
-            DEPLOY_DIR=~/jusupcpa           
-            mkdir -p $DEPLOY_DIR          
-            rm -rf $DEPLOY_DIR/*           
+            DEPLOY_DIR=~/jusupcpa
+            mkdir -p $DEPLOY_DIR
+            rm -rf $DEPLOY_DIR/*                        # 👈 очищаем папку перед копированием
             echo "Ready to copy files."
 
       - name: SCP k3s manifests to VPS
@@ -54,7 +60,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "k3s/*"
+          source: "k3s/*"                               # 👈 твои манифесты
           target: "~/jusupcpa/"
 
       - name: Apply k3s manifests on VPS
@@ -65,7 +71,10 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd ~/jusupcpa/k3s
-            # Подменяем образ внутри deployment.yaml
-            sed -i 's|image:.*|image: '"${{ env.IMAGE_NAME }}:latest"'|' deployment.yaml           
+            # 👇 подставляем тег с SHA, чтобы Kubernetes понял, что образ новый
+            sed -i 's|image:.*|image: '"${{ env.IMAGE_NAME }}:${{ github.sha }}"'|' deployment.yaml
+
             kubectl apply -f .
-            echo "Deployment complete."
+            kubectl rollout restart deployment jusupcpa   # 👈 форсируем рестарт, чтобы точно обновился
+            kubectl rollout status deployment jusupcpa    # 👈 ждём пока поднимется
+            echo "✅ Deployment complete."
