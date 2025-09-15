@@ -31,8 +31,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.IMAGE_NAME }}:latest
-            ${{ env.IMAGE_NAME }}:${{ github.sha }}    # 👈 уникальный тег по SHA
+            ${{env.IMAGE_NAME}}:latest
+            ${{env.IMAGE_NAME}}:${{github.sha}}    # 👈 уникальный тег по SHA
 
   deploy:
     name: Deploy to k3s on VPS
