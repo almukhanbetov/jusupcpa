@@ -44,6 +44,9 @@ function HeroSection() {
               <h2 className="md:text-7xl sm:text-4xl text-lg  font-bold">
                 {projectsData[imageIndex].title}
               </h2>
+               <p className="sm:text-base text-xs">
+                {projectsData[imageIndex].description2}
+              </p>
               <div>
                 <Link to={"/projects"}>
                   <Button>Регистрация</Button>

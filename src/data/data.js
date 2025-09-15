@@ -80,6 +80,7 @@ export const projectsData = [
     id: 1,
     title: "uibirzhasi.kz",
     description: "Впервые в мире биржа недвижимости",
+    description2: "мы гарантируем что продадим вашу недвижимость",
     image: image1,
     to: "/projects/villa",
   },
