@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  IMAGE_NAME: almuko/jusupcpa/   # 👈 твой репозиторий на DockerHub
+  IMAGE_NAME: almuko/jusupcpa   # ✅ убедись, что тут НЕТ пробелов и слеша в конце
 
 jobs:
   build-and-push:
@@ -22,8 +22,8 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}   # 👈 логин
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}   # 👈 пароль/токен
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build and Push Image to Docker Hub
         uses: docker/build-push-action@v4
@@ -31,8 +31,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{env.IMAGE_NAME}}:latest
-            ${{env.IMAGE_NAME}}:${{github.sha}}    # 👈 уникальный тег по SHA
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}   # ✅ тег по SHA
 
   deploy:
     name: Deploy to k3s on VPS
@@ -42,7 +42,7 @@ jobs:
       - name: Checkout repo again
         uses: actions/checkout@v3
 
-      - name: Copy k3s manifests to VPS and prepare dir
+      - name: Copy k3s manifests dir to VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -72,14 +72,14 @@ jobs:
           script: |
             cd ~/jusupcpa/k3s
 
-            # 👇 подменяем образ на тег с SHA
+            # 👇 подменяем образ в deployment.yaml на уникальный SHA
             sed -i 's|image:.*|image: almuko/jusupcpa:'"${{ github.sha }}"'|' deployment.yaml
 
             # Применяем все манифесты
             kubectl apply -f .
 
-            # Рестартуем деплой и ждём, пока поднимется
+            # Перезапускаем деплой, чтобы гарантировать обновление
             kubectl rollout restart deployment jusupcpa
             kubectl rollout status deployment jusupcpa --timeout=60s
 
-            echo "🚀 Deployment complete."
+            echo "🚀 Deployment complete!"
