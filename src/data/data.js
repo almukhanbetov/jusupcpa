@@ -79,7 +79,7 @@ export const projectsData = [
   {
     id: 1,
     title: "uibirzhasi.kz",
-    description: "Впервые на бирже недвижимости",
+    description: "Впервые в мире биржа недвижимости",
     image: image1,
     to: "/projects/villa",
   },
@@ -138,11 +138,11 @@ export const projectsData = [
 
 export const headerData = [
   { id: 1, title: "Главная", to: "/" },
-  { id: 2, title: "Проект", to: "/projects" },
-  { id: 3, title: "О нас", to: "/about" },
-  { id: 4, title: "Контакты", to: "/contact" },
-  { id: 5, title: "Вход", to: "/login" },
-  { id: 6, title: "Регистрация", to: "/register" },
+  // { id: 2, title: "Проект", to: "/projects" },
+  { id: 2, title: "О нас", to: "/about" },
+  { id: 3, title: "Контакты", to: "/contact" },
+  { id: 4, title: "Вход", to: "/login" },
+  { id: 5, title: "Регистрация", to: "/register" },
 ];
 
 export const clientTestimonialsData = [

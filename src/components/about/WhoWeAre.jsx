@@ -19,10 +19,10 @@ function WhoWeAre() {
 
               <div className="flex  justify-center flex-col md:p-[50px] p-[30px]">
                 <h2 className="sm:text-3xl text-2xl uppercase font-bold mb-[10px]">
-                  Who We Are
+                  Кто мы?
                 </h2>
                 <p className="text-gray">
-                  Добро пожаловать на uibirzhasi.kz — инновационную платформу, которая меняет рынок недвижимости Казахстана. Мы — команда ТОО "СРА", созданная, чтобы сделать покупку и продажу недвижимости быстрой, прозрачной и выгодной.
+                  uibirzhasi.kz - созданная впервые в мире биржа недвижимости, биржа встречных цен, цен продаж недвижимости и цен покупок недвижимости.
                 </p>
               </div>
             </div>
@@ -32,7 +32,7 @@ function WhoWeAre() {
               className="flex md:flex-row flex-col-reverse  mt-[30px] bg-[#222222] ">
               <div className="flex  justify-center flex-col md:p-[50px] p-[30px]">
                 <h2 className="sm:text-3xl text-2xl uppercase font-bold mb-[10px]">
-                  Our Vision
+                  Наша миссия
                 </h2>
                 <p className="text-gray">
                   Наша миссия — упростить сделки с недвижимостью, минимизируя затраты и ускоряя процесс. С uibirzhasi.kz вы получаете:
