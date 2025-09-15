@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  IMAGE_NAME: almuko/jusupcpa   # 👈 твой репозиторий на DockerHub
+  IMAGE_NAME: almuko/jusupcpa/   # 👈 твой репозиторий на DockerHub
 
 jobs:
   build-and-push:
