@@ -32,7 +32,7 @@ jobs:
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:latest
-            ${{ env.IMAGE_NAME }}:${{ github.sha }}   # ✅ тег по SHA
+            almuko/jusupcpa:${{ github.sha }}   # ✅ тег по SHA
 
   deploy:
     name: Deploy to k3s on VPS
